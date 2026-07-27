@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Thala 💜</title>
+    <style>
+        /* ==========================================
+           1. LUXURY PURPLE THEME & CORE STYLES
+           ========================================== */
+        :root {
+            --bg-dark: #07030d;
+            --accent-purple: #9d4edd;
+            --accent-glow: #c77dff;
+            --accent-pink: #ff4d6d;
+            --text-light: #f8f7ff;
+            --glass-bg: rgba(20, 10, 35, 0.75);
+            --glass-border: rgba(199, 125, 255, 0.3);
+            --font-main: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-main);
+            overflow: hidden; /* Multi-page single-screen feel */
+            min-height: 100vh;
+            width: 100vw;
+        }
+
+        /* Canvas for Particles & Sparkles */
+        #particleCanvas, #sparkleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #sparkleCanvas { z-index: 9999; }
+
+        /* ==========================================
+           2. MULTI-PAGE SCREEN SYSTEM
+           ========================================== */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 3;
+        }
+
+        /* Glassmorphism Card Wrapper */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(157, 78, 221, 0.25);
+            position: relative;
+        }
+
+        /* Buttons & Controls */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(199, 125, 255, 0.7);
+        }
+
+        .btn:active { transform: scale(0.96); }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Music Floating Control */
+        .music-player-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            display: none; /* Shows after unlock */
+        }
+
+        .music-btn-small {
+            background: none;
+            border: none;
+            color: var(--accent-glow);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* ==========================================
+           3. PAGE 1: PASSWORD LOCK
+           ========================================== */
+        .lock-icon { font-size: 3rem; margin-bottom: 15px; text-shadow: 0 0 15px var(--accent-glow); }
+        .lock-title {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .lock-hint { font-size: 0.85rem; color: #b3a0cd; margin-bottom: 20px; font-style: italic; }
+        .pass-input {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            background: rgba(10, 5, 20, 0.7);
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 3px;
+        }
+        .error-msg { color: var(--accent-pink); font-size: 0.85rem; margin-top: 10px; min-height: 20px; }
+
+        /* ==========================================
+           4. PAGE 2: HERO & COUNTDOWN
+           ========================================== */
+        .title-grand {
+            font-size: clamp(2.2rem, 6vw, 3.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 20%, var(--accent-glow) 60%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .timer-container { display: flex; gap: 10px; justify-content: center; margin: 25px 0; }
+        .time-box {
+            background: rgba(10, 5, 20, 0.6);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 12px;
+            min-width: 65px;
+        }
+        .time-num { font-size: 1.5rem; font-weight: 700; color: #fff; display: block; }
+        .time-label { font-size: 0.65rem; color: var(--accent-glow); text-transform: uppercase; }
+
+        /* ==========================================
+           5. PAGE 3: TYPEWRITER LETTER
+           ========================================== */
+        .letter-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #eae0d5;
+            white-space: pre-wrap;
+            font-family: 'Georgia', serif;
+            text-align: left;
+            min-height: 180px;
+        }
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2rem;
+            background-color: var(--accent-glow);
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ==========================================
+           6. PAGE 4: PHOTO GALLERY
+           ========================================== */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: #000;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .slide.active { opacity: 1; }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1);
+            transition: transform 6s ease-out;
+        }
+        .slide.active img { transform: scale(1.15); /* Ken Burns Effect */ }
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(transparent, rgba(5, 1, 10, 0.9));
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .gallery-controls { display: flex; justify-content: space-between; margin-top: 15px; }
+
+        /* ==========================================
+           7. PAGE 5: FUN MINI-GAME
+           ========================================== */
+        .game-area {
+            width: 100%;
+            height: 250px;
+            background: rgba(10, 5, 20, 0.5);
+            border: 1px dashed var(--glass-border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        .target-heart {
+            position: absolute;
+            font-size: 2rem;
+            cursor: pointer;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .score-board { font-size: 1.2rem; color: var(--accent-glow); margin-bottom: 10px; }
+
+        /* ==========================================
+           8. PAGE 6: CAKE & WISH
+           ========================================== */
+        .cake-container {
+            position: relative;
+            width: 200px;
+            height: 160px;
+            margin: 30px auto 10px;
+            cursor: pointer;
+        }
+        .cake-base { position: absolute; bottom: 0; width: 100%; height: 60px; background: linear-gradient(135deg, #4a154b, #2c0b2e); border-radius: 12px; }
+        .cake-middle { position: absolute; bottom: 55px; left: 12.5%; width: 75%; height: 50px; background: linear-gradient(135deg, #7b2cbf, #3c096c); border-radius: 10px; }
+        .cake-top { position: absolute; bottom: 100px; left: 25%; width: 50%; height: 35px; background: linear-gradient(135deg, #9d4edd, #5a189a); border-radius: 8px; }
+        .candle { position: absolute; bottom: 135px; left: 50%; transform: translateX(-50%); width: 10px; height: 30px; background: linear-gradient(to right, #ffb703, #fb8500); border-radius: 3px; }
+        .flame {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 12px; height: 16px;
+            background: radial-gradient(ellipse at bottom, #ffee55 0%, #ff5400 100%);
+            border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ffb703;
+            animation: flameFlicker 0.1s infinite alternate; transition: opacity 0.5s ease;
+        }
+        @keyframes flameFlicker { 0% { transform: translateX(-50%) scale(1); } 100% { transform: translateX(-50%) scale(1.1); } }
+    </style>
+</head>
+<body>
+
+    <!-- Particle Overlays -->
+    <canvas id="particleCanvas"></canvas>
+    <canvas id="sparkleCanvas"></canvas>
+
+    <!-- DIRECT MP3 AUDIO PLAYER -->
+    <!-- 📌 EDIT HERE: Replace src with your audio file path or URL -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Float -->
+    <div class="music-player-bar" id="musicBar">
+        <span style="font-size: 0.8rem; color:#fff;">🎵 Music</span>
+        <button class="music-btn-small" onclick="toggleAudio()" id="musicToggleBtn">🔊</button>
+    </div>
+
+    <!-- ==========================================
+         PAGE 1: PASSWORD LOCK
+         ========================================== -->
+    <div class="page active" id="page1">
+        <div class="glass-card">
+            <div class="lock-icon">💜</div>
+            <h1 class="lock-title">Surprise Awaits</h1>
+            <p class="lock-hint">Hint: "Your favourite person in the world ❤️"</p>
+            <form onsubmit="unlockSite(event)">
+                <input type="password" id="passInput" class="pass-input" placeholder="Enter Password" required autocomplete="off">
+                <button type="submit" class="btn" style="width: 100%;">UNLOCK EXPERIENCE</button>
+                <div id="errorMsg" class="error-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PAGE 2: HERO & COUNTDOWN
+         ========================================== -->
+    <div class="page" id="page2">
+        <div class="glass-card">
+            <h1 class="title-grand">Happy Birthday Thala 💜</h1>
+            <p style="color: #d8c2ff; font-weight: 300;">A Special Journey Created For You</p>
+            
+            <div class="timer-container">
+                <div class="time-box"><span id="days" class="time-num">00</span><span class="time-label">Days</span></div>
+                <div class="time-box"><span id="hours" class="time-num">00</span><span class="time-label">Hours</span></div>
+                <div class="time-box"><span id="minutes" class="time-num">00</span><span class="time-label">Mins</span></div>
+                <div class="time-box"><span id="seconds" class="time-num">00</span><span class="time-label">Secs</span></div>
+            </div>
+
+            <button class="btn" onclick="nextPage(3)">Read Birthday Letter ✉️</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PAGE 3: TYPEWRITER LETTER
+         ========================================== -->
+    <div class="page" id="page3">
+        <div class="glass-card">
+            <h2 style="color: var(--accent-glow); margin-bottom: 15px;">A Message For You 💌</h2>
+            <div class="letter-text" id="typedLetter"></div><span class="cursor"></span>
+            
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn btn-secondary" onclick="nextPage(2)">❮ Back</button>
+                <button class="btn" onclick="nextPage(4)">Our Memories 📸 ❯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PAGE 4: PHOTO GALLERY (CUSTOM IMAGES)
+         ========================================== -->
+    <div class="page" id="page4">
+        <div class="glass-card">
+            <h2 style="color: var(--accent-glow); margin-bottom: 15px;">Cinematic Memories 📸</h2>
+            
+            <div class="slideshow-container">
+                <!-- 📌 EDIT HERE: Replace src with your image links or local filenames (e.g., photo1.jpg) -->
+                <div class="slide active">
+                    <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600" alt="Memory 1">
+                    <div class="slide-caption">Memories that shine brighter than stars ✨</div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600" alt="Memory 2">
+                    <div class="slide-caption">Every moment with you is magic 💜</div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600" alt="Memory 3">
+                    <div class="slide-caption">To endless laughter and joy 🥂</div>
+                </div>
+            </div>
+
+            <div class="gallery-controls">
+                <button class="btn btn-secondary" onclick="moveSlide(-1)">❮ Prev</button>
+                <button class="btn btn-secondary" onclick="moveSlide(1)">Next ❯</button>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+                <button class="btn btn-secondary" onclick="nextPage(3)">❮ Back</button>
+                <button class="btn" onclick="nextPage(5)">Play Fun Game 🎮 ❯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PAGE 5: FUN MINI-GAME
+         ========================================== -->
+    <div class="page" id="page5">
+        <div class="glass-card">
+            <h2 style="color: var(--accent-glow);">Catch The Hearts! 💖</h2>
+            <p style="font-size:0.85rem; color:#b3a0cd; margin-top:5px;">Tap 5 hearts to unlock the Birthday Cake!</p>
+            
+            <div class="score-board">Score: <span id="gameScore">0</span> / 5</div>
+            
+            <div class="game-area" id="gameArea" onclick="spawnHeart()">
+                <!-- Hearts spawn dynamically here -->
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn btn-secondary" onclick="nextPage(4)">❮ Back</button>
+                <button class="btn" id="gameNextBtn" style="display:none;" onclick="nextPage(6)">Cut The Cake 🎂 ❯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         PAGE 6: CAKE CUTTING & CELEBRATION
+         ========================================== -->
+    <div class="page" id="page6">
+        <div class="glass-card">
+            <h2 style="color: var(--accent-glow);">Make A Wish 🎂</h2>
+            <p style="font-size:0.85rem; color:#b3a0cd;">Tap the candle to blow it out!</p>
+            
+            <div class="cake-container" onclick="extinguishCandle()">
+                <div class="cake-base"></div>
+                <div class="cake-middle"></div>
+                <div class="cake-top"></div>
+                <div class="candle">
+                    <div id="candleFlame" class="flame"></div>
+                </div>
+            </div>
+
+            <p id="wishStatus" style="color: var(--accent-pink); font-size:0.9rem; min-height:20px;"></p>
+
+            <button class="btn btn-secondary" onclick="nextPage(2)">Restart Experience 🔄</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT ENGINE
+         ========================================== -->
+    <script>
+        /* --- NAVIGATION SYSTEM --- */
+        let currentPage = 1;
+
+        function nextPage(pageNumber) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page${pageNumber}`).classList.add('active');
+            currentPage = pageNumber;
+
+            if (pageNumber === 3 && letterIndex === 0) {
+                startTypewriter();
+            }
+            if (pageNumber === 5) {
+                initGame();
+            }
+        }
+
+        /* --- AUDIO PLAYER LOGIC --- */
+        const audio = document.getElementById('bgMusic');
+        const musicBar = document.getElementById('musicBar');
+        const musicBtn = document.getElementById('musicToggleBtn');
+
+        function playAudio() {
+            audio.play().then(() => {
+                musicBar.style.display = 'flex';
+                musicBtn.textContent = '🔊';
+            }).catch(() => {
+                console.log("Autoplay blocked, user interaction needed");
+            });
+        }
+
+        function toggleAudio() {
+            if (audio.paused) {
+                audio.play();
+                musicBtn.textContent = '🔊';
+            } else {
+                audio.pause();
+                musicBtn.textContent = '🔇';
+            }
+        }
+
+        /* --- PASSWORD UNLOCK --- */
+        function unlockSite(e) {
+            e.preventDefault();
+            const pass = document.getElementById('passInput').value;
+            if (pass === "Pradeep") {
+                playAudio();
+                startGlobalEffects();
+                nextPage(2);
+            } else {
+                const err = document.getElementById('errorMsg');
+                err.textContent = "Incorrect password! Hint: Favourite person ❤️";
+            }
+        }
+
+        /* --- COUNTDOWN TIMER --- */
+        const targetDate = new Date("November 1, 2026 00:00:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+            if (diff > 0) {
+                document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000);
+            }
+        }, 1000);
+
+        /* --- TYPEWRITER EFFECT --- */
+        const letterText = "Dear Thala 💜,\n\nYou are the most special person in my world.\nMay your life always be filled with happiness, love, and unlimited success.\nHappy Birthday ❤️";
+        let letterIndex = 0;
+
+        function startTypewriter() {
+            if (letterIndex < letterText.length) {
+                document.getElementById("typedLetter").textContent += letterText.charAt(letterIndex);
+                letterIndex++;
+                setTimeout(startTypewriter, 45);
+            }
+        }
+
+        /* --- GALLERY SLIDESHOW --- */
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(n) {
+            slides.forEach(s => s.classList.remove('active'));
+            slideIndex = (n + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active');
+        }
+
+        function moveSlide(step) { showSlide(slideIndex + step); }
+
+        /* --- FUN GAME LOGIC --- */
+        let score = 0;
+        function initGame() {
+            score = 0;
+            document.getElementById('gameScore').textContent = score;
+            document.getElementById('gameNextBtn').style.display = 'none';
+            spawnHeart();
+        }
+
+        function spawnHeart() {
+            const area = document.getElementById('gameArea');
+            area.innerHTML = '';
+            if (score >= 5) {
+                area.innerHTML = '<div style="margin-top:100px; color:var(--accent-glow);">🎉 Great Job! You unlocked the cake!</div>';
+                document.getElementById('gameNextBtn').style.display = 'inline-flex';
+                return;
+            }
+
+            const heart = document.createElement('div');
+            heart.className = 'target-heart';
+            heart.innerHTML = '💖';
+            heart.style.top = Math.random() * 180 + 'px';
+            heart.style.left = Math.random() * (area.clientWidth - 40) + 'px';
+            
+            heart.onclick = (e) => {
+                e.stopPropagation();
+                score++;
+                document.getElementById('gameScore').textContent = score;
+                triggerFireworks();
+                spawnHeart();
+            };
+
+            area.appendChild(heart);
+        }
+
+        /* --- CAKE CANDLE INTERACTION --- */
+        function extinguishCandle() {
+            document.getElementById('candleFlame').style.opacity = '0';
+            document.getElementById('wishStatus').textContent = "✨ Wish Requested! Happy Birthday Thala! 🎉";
+            triggerFireworks();
+        }
+
+        /* --- CANVAS PARTICLES & FIREWORKS ENGINE --- */
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        const sparkleCanvas = document.getElementById('sparkleCanvas');
+        const sCtx = sparkleCanvas.getContext('2d');
+
+        let width, height, particles = [], fireworks = [], sparkles = [];
+
+        function resize() {
+            width = canvas.width = sparkleCanvas.width = window.innerWidth;
+            height = canvas.height = sparkleCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + 20;
+                this.vy = -(Math.random() * 1.5 + 0.5);
+                this.size = Math.random() * 10 + 6;
+                this.color = `rgba(197, 125, 255, ${Math.random() * 0.5 + 0.2})`;
+            }
+            update() {
+                this.y += this.vy;
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size/2, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        function triggerFireworks() {
+            for (let i = 0; i < 40; i++) {
+                fireworks.push({
+                    x: width / 2, y: height / 2,
+                    vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+                    alpha: 1, color: '#ff4d6d'
+                });
+            }
+        }
+
+        function startGlobalEffects() {
+            for (let i = 0; i < 40; i++) particles.push(new Particle());
+            
+            (function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    let f = fireworks[i];
+                    f.x += f.vx; f.y += f.vy; f.alpha -= 0.02;
+                    ctx.fillStyle = f.color;
+                    ctx.globalAlpha = Math.max(0, f.alpha);
+                    ctx.beginPath(); ctx.arc(f.x, f.y, 3, 0, Math.PI*2); ctx.fill();
+                    if (f.alpha <= 0) fireworks.splice(i, 1);
+                }
+                ctx.globalAlpha = 1;
+                requestAnimationFrame(animate);
+            })();
+        }
+
+        // Mouse Sparkle Effect
+        window.addEventListener('mousemove', (e) => {
+            sparkles.push({x: e.clientX, y: e.clientY, size: Math.random()*4+2, alpha: 1});
+        });
+
+        (function animateSparkles() {
+            sCtx.clearRect(0, 0, width, height);
+            for (let i = sparkles.length - 1; i >= 0; i--) {
+                let s = sparkles[i];
+                s.alpha -= 0.04;
+                sCtx.fillStyle = `rgba(199, 125, 255, ${Math.max(0, s.alpha)})`;
+                sCtx.beginPath(); sCtx.arc(s.x, s.y, s.size, 0, Math.PI*2); sCtx.fill();
+                if (s.alpha <= 0) sparkles.splice(i, 1);
+            }
+            requestAnimationFrame(animateSparkles);
+        })();
+    </script>
+</body>
+</html>	
